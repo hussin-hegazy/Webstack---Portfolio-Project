@@ -3,6 +3,8 @@ const router = express.Router()
 
 const bcrypt = require('bcrypt');
 
+const passport = require('passport')
+
 
 const creatJWT = require('../utils/creatJWT')
 
@@ -25,7 +27,7 @@ const { singleUpload } = require('../Medelwer/multerMiddleware')
 // / Get all User:
 router.get('/', verifyToken, verifyRole(UserRole.ADMIN), asyncWrapper(async(req, res, next) => {
     const query = req.query
-    const limit = query.limit || 10
+    const limit = query.limit || 20
     const page =  query.page  || 1
     const skip = (page -1) * limit
     const user = await User.find({},{"__v": false, password: false}).limit(limit).skip(skip)
@@ -40,7 +42,7 @@ router.post('/register', singleUpload, asyncWrapper(async(req, res, next) =>{
     const {email, name, password, createdAt, role} = req.body
     const Email = await User.findOne({email: email})
     if(Email){
-        const error =AppError.create("You already have an account.", 400, "Fail")
+        const error =AppError.create("Email already exists. Please use a different email.", 400, "Fail")
         return next(error)
     }
 
@@ -83,7 +85,7 @@ router.post('/login' ,asyncWrapper (async(req, res, next) =>
     
         // التحقق من وجود المستخدم
     if (! user){
-        const error = AppError.create("User not Found", 400,"Fail")
+        const error = AppError.create("Invalid email or User not Found", 400,"Fail")
         return next(error)
     }
 
@@ -101,9 +103,6 @@ router.post('/login' ,asyncWrapper (async(req, res, next) =>
   
 }
 ))
-
-
-
 
 
 
