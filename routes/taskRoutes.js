@@ -9,14 +9,23 @@ const AppError = require('../utils/AppError')
 const asyncWrapper = require('../Medelwer/asyncWrapper')
 
 
+const verifyToken = require('../Medelwer/verifyToken');
+const User = require("../models/User");
+
 
 // Get all Tasks:
-router.get('/' ,asyncWrapper (async(req, res, next) => {
+router.get('/', verifyToken, asyncWrapper (async(req, res, next) => {
     const query = req.query
     const limit = query.limit || 10
     const page =  query.page  || 1
     const skip = (page -1) * limit
-    const tasks = await Task.find({},{"__v": false}).limit(limit).skip(skip)
+    const tasks = await Task.find({user:req.user_data.id},{"__v": false}).limit(limit).skip(skip)
+
+    if(tasks.length === 0){
+        const error = AppError.create("No tasks found.", 404, "Fail")
+        return next(error)
+    }
+
     res.status(200).json({status: "success", data: {tasks}})
 }))
 
@@ -25,17 +34,21 @@ router.get('/' ,asyncWrapper (async(req, res, next) => {
 
 
 // Get Singel Task:
-router.get('/:taskId' ,asyncWrapper( async (req, res, next) => {
+router.get('/:taskId', verifyToken, asyncWrapper( async (req, res, next) => {
     const taskId =req.params.taskId
-    const task = await Task.findById(taskId)
-    if(!task){
-        const error = AppError.create("Not Found Task", 404, "Fail")
-        return next(error)
-    }
+    const user_id = req.user_data.id
+    // if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    //     const error = AppError.create("Invalid task ID.", 400, "Fail");
+    //     return next(error);
+    // }
 
-    //   const error = AppError.creat("Not Found Task", 404, "Fail" )
-    //     return next(error)
-    // 
+
+    const task = await Task.findOne({_id: taskId, user: user_id})
+    if(!task){
+        const error = AppError.create("Not Found Task or Unauthorized", 404, "Fail")
+        return next(error)
+    } 
+  
         
     res.status(200).json({status: "success", data: {task}})
 }))
@@ -44,9 +57,18 @@ router.get('/:taskId' ,asyncWrapper( async (req, res, next) => {
 
 
 // creat OR Add Task:
-router.post('/', asyncWrapper(async (req, res, next) => {
+router.post('/', verifyToken, asyncWrapper(async (req, res, next) => {
+
     const Ntask = req.body;
-    const task = new Task(Ntask);
+
+        // التحقق من صحة البيانات المدخلة
+    // const { title, description, priority, dueDate } = Ntask;
+    // if (!title || !description || !priority || !dueDate) {
+    //     const error = AppError.create("All fields are required.", 400, "Fail");
+    //     return next(error);
+    // }
+
+    const task = new Task({...Ntask, user: req.user_data.id});
     await task.save();
     res.status(201).json({ status: "success", data: { task } });
 }));
@@ -54,14 +76,24 @@ router.post('/', asyncWrapper(async (req, res, next) => {
 
 
 // Updata task:
-router.patch('/:taskId', asyncWrapper(async (req, res, next) => {
+router.patch('/:taskId', verifyToken, asyncWrapper(async (req, res, next) => {
     const taskId = req.params.taskId
-    const task = await Task.findByIdAndUpdate(taskId, {$set: req.body}, {new: true})
+    const user_id = req.user_data.id
+    const task = await Task.findOne({_id: taskId, user: user_id})
     if(!task){
-        const error = AppError.create("Not Found Task", 404, "Fail")
+        const error = AppError.create("Not Found Task or Unauthorized", 404, "Fail")
         return next(error)
-    }
-    res.status(200).json({status:"success",data: {task}})
+    } 
+    const {title, description, priority, dueDate} = req.body
+    if(!title|| !description || !priority || !dueDate){
+        const error = AppError.create("All fields are required. ", 400, "Fail")
+        return next(error)
+    } 
+
+
+    const updatedTask = await Task.findByIdAndUpdate(taskId, {$set: req.body}, {new: true})
+    
+    res.status(200).json({status:"success",data: {task: updatedTask}})
 
   
 }))
@@ -70,7 +102,14 @@ router.patch('/:taskId', asyncWrapper(async (req, res, next) => {
 // Dleat Task:
 router.delete('/:taskId', asyncWrapper(async (req, res, next) => {
     const taskId = req.params.taskId
-    const task = await Task.deleteOne({_id: taskId})
+    const user_id = req.user_data.id
+    const task = await Task.findOne({_id: taskId, user: user_id})
+    if(!task){
+        const error = AppError.create("Not Found Task or Unauthorized", 404, "Fail")
+        return next(error)
+    } 
+
+    await Task.deleteOne({_id: taskId})
     res.status(200).json({status: "success", data: null  })
 }))
 
@@ -85,4 +124,3 @@ router.delete('/:taskId', asyncWrapper(async (req, res, next) => {
 
 
 module.exports = router
-
