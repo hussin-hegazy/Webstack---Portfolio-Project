@@ -109,5 +109,16 @@ router.post('/login' ,asyncWrapper (async(req, res, next) =>
 
 
 
+router.get("/auth/google",passport.authenticate('google',  {scope: ['profile', 'email']}))
+
+router.get("/auth/google/callback",passport.authenticate('google',  {session: false}), (req, res, next) => {
+    const token = creatJWT({ email: req.user.email, id: req.user._id, role: req.user.role })
+    res.status(200).json({ status: "success", data: { token } })
+
+})
+
+
+
+
 
 module.exports = router
