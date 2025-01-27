@@ -1,0 +1,48 @@
+/* src/components/Calendar.css */
+.custom-tooltip {
+  background-color: #007bff; /* خلفية زرقاء */
+  color: #ffffff; /* لون النص أبيض */
+  border-radius: 10px; /* زوايا دائرية */
+  padding: 20px; /* تباعد داخلي */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* ظل ناعم */
+  border: 1px solid #0056b3; /* حد أزرق داكن */
+  max-width: 300px; /* أقصى عرض */
+}
+
+.tooltip-content h4 {
+  margin: 0 0 15px 0; /* تباعد أسفل العنوان */
+  font-size: 18px; /* حجم العنوان */
+  color: #ffffff; /* لون العنوان أبيض */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* تباعد بين العنوان والأيقونة */
+}
+
+.tooltip-content p {
+  margin: 10px 0; /* تباعد بين الفقرات */
+  font-size: 14px; /* حجم النص */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* تباعد بين النص والأيقونة */
+}
+
+.tooltip-content strong {
+  color: #ffffff; /* لون النص الغامق أبيض */
+}
+
+.tooltip-content .status-icon {
+  font-size: 18px; /* حجم الأيقونة */
+}
+
+.tooltip-content .completed {
+  color: #00C851; /* لون الأيقونة للمهام المكتملة */
+}
+
+.tooltip-content .incomplete {
+  color: #ff4444; /* لون الأيقونة للمهام غير المكتملة */
+}
+
+.tooltip-content .icon {
+  font-size: 14px; /* حجم الأيقونة */
+  color: #ffffff; /* لون الأيقونة أبيض */
+}

@@ -1,0 +1,39 @@
+/* src/pages/Dashboard.css */
+.sidebar {
+  background-color: #f8f9fa;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+  width: 250px;
+}
+
+.sidebar h4 {
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.sidebar .nav-link {
+  color: #333;
+  font-weight: bold;
+  margin: 10px 0;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(108, 99, 255, 0.1);
+}
+
+.main-content {
+  margin-left: 250px; /* يتناسب مع عرض الشريط الجانبي */
+  padding: 20px;
+}
